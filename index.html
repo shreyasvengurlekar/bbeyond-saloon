@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>B Beyond Hair &amp; Beauty Saloon – Kudal, Sindhudurg</title>
+  <meta name="description" content="B Beyond Hair & Beauty Saloon in Kudal, Sindhudurg — professional haircuts, hair spa, keratin treatments, and beauty services in a clean and welcoming environment." />
+  <meta name="keywords" content="salon kudal, hair spa sindhudurg, keratin treatment kudal, beauty saloon sindhudurg, B Beyond salon" />
+  <meta name="author" content="B Beyond Hair & Beauty Saloon" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="B Beyond Hair & Beauty Saloon – Kudal, Sindhudurg" />
+  <meta property="og:description" content="Premium hair and beauty services in the heart of Kudal. Book your appointment today." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1200&q=80" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/src/styles/variables.css" />
+  <link rel="stylesheet" href="/src/styles/base.css" />
+  <link rel="stylesheet" href="/src/styles/components.css" />
+  <link rel="stylesheet" href="/src/styles/sections.css" />
+  <link rel="stylesheet" href="/src/styles/admin.css" />
+  <link rel="stylesheet" href="/src/styles/responsive.css" />
+</head>
+<body>
+
+  <!-- WHATSAPP FLOAT -->
+  <a class="whatsapp-float"
+     href="https://wa.me/919404274246?text=Hi%2C%20I%20want%20to%20book%20an%20appointment%20at%20B%20Beyond%20Salon!"
+     target="_blank" rel="noopener noreferrer"
+     title="Chat on WhatsApp" aria-label="Chat on WhatsApp">💬</a>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <a href="#about"><span class="nav-icon" aria-hidden="true">ℹ️</span>About</a>
+    <a href="#services"><span class="nav-icon" aria-hidden="true">✂️</span>Services</a>
+    <a href="#booking" class="book-tab"><span class="nav-icon" aria-hidden="true">📅</span>Book</a>
+    <a href="#gallery"><span class="nav-icon" aria-hidden="true">🖼️</span>Gallery</a>
+    <a href="#location"><span class="nav-icon" aria-hidden="true">📍</span>Visit</a>
+  </nav>
+
+  <!-- LOGIN MODAL -->
+  <div id="login-modal" class="login-modal" role="dialog" aria-modal="true" aria-label="Admin Login">
+    <div class="login-box">
+      <h3>Admin <em style="color:var(--orange)">Login</em></h3>
+      <p>Sign in with your admin email and password</p>
+      <input type="email" id="admin-email" placeholder="Enter admin email" autocomplete="email" />
+      <input type="password" id="admin-password" placeholder="Enter password" style="margin-top:0.8rem;" autocomplete="current-password" />
+      <p class="login-error" id="login-error" role="alert">❌ Wrong email or password. Try again.</p>
+      <button onclick="adminLogin()" id="login-btn">Login →</button>
+      <p style="font-size:0.72rem;color:var(--sand);margin-top:1rem;text-align:center;">
+        🔒 Secured with Firebase Authentication
+      </p>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="admin-panel" role="dialog" aria-modal="true" aria-label="Admin Panel">
+    <div class="admin-header">
+      <h2>Admin <em>Panel</em></h2>
+      <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+        <button class="admin-clear-btn" onclick="clearBookings()">Clear All</button>
+        <button class="admin-close" onclick="adminLogout()">🚪 Logout</button>
+      </div>
+    </div>
+    <div class="admin-stats">
+      <div class="admin-stat"><div class="admin-stat-num" id="stat-total">0</div><div class="admin-stat-label">Total Bookings</div></div>
+      <div class="admin-stat"><div class="admin-stat-num" id="stat-today">0</div><div class="admin-stat-label">Today</div></div>
+      <div class="admin-stat"><div class="admin-stat-num">6</div><div class="admin-stat-label">Services</div></div>
+      <div class="admin-stat"><div class="admin-stat-num">4.5★</div><div class="admin-stat-label">Avg Rating</div></div>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr><th>#</th><th>Name</th><th>Phone</th><th>Service</th><th>Date</th><th>Time</th><th>Note</th><th>Booked At</th></tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MOBILE MENU DRAWER -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile menu">
+    <a href="#about"    onclick="closeMenu()">About</a>
+    <a href="#services" onclick="closeMenu()">Services</a>
+    <a href="#pricing"  onclick="closeMenu()">Pricing</a>
+    <a href="#gallery"  onclick="closeMenu()">Gallery</a>
+    <a href="#booking"  onclick="closeMenu()">Book Now</a>
+    <a href="#location" onclick="closeMenu()">Visit Us</a>
+    <a href="#booking"  onclick="closeMenu()" class="mobile-menu-cta">📅 Book Appointment</a>
+  </div>
+
+  <!-- NAV -->
+  <nav id="main-nav" aria-label="Main navigation">
+    <a href="#hero" class="nav-logo">B Beyond<span>Hair &amp; Beauty Saloon</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#booking">Book</a></li>
+      <li><a href="#location">Visit Us</a></li>
+    </ul>
+    <a href="#booking" class="nav-cta">Book Now</a>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-img" role="img" aria-label="Salon interior background"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Kudal · Sindhudurg · Professional Salon</div>
+      <h1 class="hero-headline">Where Beauty<br><em>Meets Confidence.</em></h1>
+      <p class="hero-sub">Premium hair and beauty services for everyone — in a clean, welcoming, and relaxing environment in the heart of Kudal.</p>
+      <div class="hero-actions">
+        <a href="#booking" class="btn-primary">Book Appointment</a>
+        <a href="tel:+919637720097" class="btn-outline">Call Now</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item"><span>⭐ <strong>4.5</strong> Star Rating</span></div>
+        <div class="trust-item"><span>✦ <strong>50+</strong> Happy Clients</span></div>
+        <div class="trust-item"><span>✦ <strong>Pro</strong> Experts</span></div>
+      </div>
+    </div>
+    <div class="scroll-line" aria-hidden="true">Scroll to explore</div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-grid fade-up">
+      <div class="about-visual">
+        <img class="about-img-main"
+             src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=800&q=80"
+             alt="B Beyond Salon interior" />
+        <div class="about-stat-box">
+          <div class="stat">50+</div>
+          <div class="stat-label">Happy Clients</div>
+        </div>
+      </div>
+      <div class="about-text">
+        <div class="section-label">Our Story</div>
+        <h2 class="section-title">A Trusted Beauty<br><em>Destination</em></h2>
+        <p>B Beyond Hair &amp; Beauty Saloon is a beloved destination in Kudal, Sindhudurg — offering professional hair and beauty services for everyone in a clean and welcoming environment.</p>
+        <p>We focus on delivering exceptional customer care while helping every client feel confident, refreshed, and at their very best.</p>
+        <div class="about-pillars">
+          <div class="pillar"><span class="pillar-icon" aria-hidden="true">✨</span><span class="pillar-text">Friendly Professional Staff</span></div>
+          <div class="pillar"><span class="pillar-icon" aria-hidden="true">🌿</span><span class="pillar-text">Clean &amp; Hygienic Space</span></div>
+          <div class="pillar"><span class="pillar-icon" aria-hidden="true">🕊</span><span class="pillar-text">Relaxing Atmosphere</span></div>
+          <div class="pillar"><span class="pillar-icon" aria-hidden="true">⭐</span><span class="pillar-text">High Satisfaction</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="services-header fade-up">
+      <div>
+        <div class="section-label">What We Offer</div>
+        <h2 class="section-title">Our <em>Services</em></h2>
+      </div>
+      <p class="section-sub">Each service delivered with care and attention — tailored just for you.</p>
+    </div>
+    <div class="services-grid fade-up" id="services-grid"></div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="fade-up" style="text-align:center;max-width:500px;margin:0 auto 0.5rem;">
+      <div class="section-label" style="justify-content:center;">Transparent Pricing</div>
+      <h2 class="section-title">Our <em>Price List</em></h2>
+    </div>
+    <div class="pricing-grid fade-up" id="pricing-grid"></div>
+  </section>
+
+  <!-- BOOKING -->
+  <section id="booking">
+    <div class="booking-grid fade-up">
+      <div class="booking-info">
+        <div class="section-label">Easy Booking</div>
+        <h2 class="section-title">Book Your<br><em>Appointment</em></h2>
+        <p>Fill in your details and your booking will be sent directly to our WhatsApp. We'll confirm your slot within minutes!</p>
+        <div class="booking-steps">
+          <div class="booking-step">
+            <div class="step-num" aria-hidden="true">1</div>
+            <div class="step-text"><strong>Fill the Form</strong>Enter your name, phone, service, and preferred date/time.</div>
+          </div>
+          <div class="booking-step">
+            <div class="step-num" aria-hidden="true">2</div>
+            <div class="step-text"><strong>Sent to WhatsApp</strong>Your booking details go directly to our WhatsApp instantly.</div>
+          </div>
+          <div class="booking-step">
+            <div class="step-num" aria-hidden="true">3</div>
+            <div class="step-text"><strong>Get Confirmed</strong>We reply within minutes to confirm your appointment slot.</div>
+          </div>
+        </div>
+      </div>
+      <div class="booking-form" role="form" aria-label="Appointment booking form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-name">Your Name *</label>
+            <input type="text" id="f-name" placeholder="Priya Sharma" autocomplete="name" required />
+          </div>
+          <div class="form-group">
+            <label for="f-phone">Phone Number *</label>
+            <input type="tel" id="f-phone" placeholder="+91 XXXXX XXXXX" autocomplete="tel" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="f-service">Select Service *</label>
+          <select id="f-service" required>
+            <option value="">-- Choose a service --</option>
+            <option>Haircut</option>
+            <option>Hair Styling</option>
+            <option>Hair Spa</option>
+            <option>Keratin Treatment</option>
+            <option>Beauty Treatment</option>
+            <option>Salon Care Package</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-date">Preferred Date *</label>
+            <input type="date" id="f-date" required />
+          </div>
+          <div class="form-group">
+            <label for="f-time">Preferred Time *</label>
+            <select id="f-time" required>
+              <option value="">-- Select time --</option>
+              <option>9:30 AM</option><option>10:00 AM</option><option>11:00 AM</option>
+              <option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option>
+              <option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option>
+              <option>6:00 PM</option><option>7:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="f-note">Additional Note</label>
+          <textarea id="f-note" placeholder="Any special request or note..."></textarea>
+        </div>
+        <button class="form-submit" onclick="submitBooking()" type="button">💬 Send Booking via WhatsApp</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="fade-up">
+      <div class="section-label">Our Work</div>
+      <h2 class="section-title">Gallery of <em>Transformations</em></h2>
+    </div>
+    <div class="gallery-grid fade-up" id="gallery-grid"></div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close lightbox">✕</button>
+    <img id="lightbox-img" src="" alt="Gallery image enlarged" />
+  </div>
+
+  <!-- WHY US -->
+  <section id="why">
+    <div class="fade-up">
+      <div class="section-label">Why Choose Us</div>
+      <h2 class="section-title">The <em>B Beyond</em> Difference</h2>
+    </div>
+    <div class="features-grid fade-up" id="features-grid"></div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section id="reviews">
+    <div class="fade-up" style="text-align:center;max-width:500px;margin:0 auto 0.5rem;">
+      <div class="section-label" style="justify-content:center;">Client Love</div>
+      <h2 class="section-title">What Our <em>Clients Say</em></h2>
+    </div>
+    <div class="reviews-grid fade-up" id="static-reviews-grid"></div>
+  </section>
+
+  <!-- LEAVE A REVIEW -->
+  <section id="leave-review">
+    <div class="fade-up" style="text-align:center;max-width:500px;margin:0 auto 0.5rem;">
+      <div class="section-label" style="justify-content:center;">Share Your Experience</div>
+      <h2 class="section-title">Leave a <em>Review</em></h2>
+    </div>
+    <div class="review-form-wrap fade-up">
+      <div class="review-form-box" role="form" aria-label="Leave a review form">
+        <p class="review-question">Your Name *</p>
+        <input type="text" id="r-name" placeholder="Enter your name" autocomplete="name" />
+        <p class="review-question">How Was Your Overall Experience? *</p>
+        <div class="star-rating-input" role="radiogroup" aria-label="Star rating">
+          <input type="radio" id="star5" name="rating" value="5" /><label for="star5" aria-label="5 stars">★</label>
+          <input type="radio" id="star4" name="rating" value="4" /><label for="star4" aria-label="4 stars">★</label>
+          <input type="radio" id="star3" name="rating" value="3" /><label for="star3" aria-label="3 stars">★</label>
+          <input type="radio" id="star2" name="rating" value="2" /><label for="star2" aria-label="2 stars">★</label>
+          <input type="radio" id="star1" name="rating" value="1" /><label for="star1" aria-label="1 star">★</label>
+        </div>
+        <p class="review-question">What Was the Best Part of the Salon? *</p>
+        <select id="r-best">
+          <option value="">-- Select best part --</option>
+          <option>Staff behaviour &amp; friendliness</option>
+          <option>Cleanliness &amp; hygiene</option>
+          <option>Quality of hair service</option>
+          <option>Beauty treatments</option>
+          <option>Relaxing atmosphere</option>
+          <option>Value for money</option>
+          <option>Everything was perfect!</option>
+        </select>
+        <p class="review-question">How Did You Like Our Service? *</p>
+        <textarea id="r-review" placeholder="Tell others about your experience at B Beyond Salon..."></textarea>
+        <button class="review-submit" id="review-submit-btn" onclick="submitReview()" type="button">⭐ Submit Review</button>
+      </div>
+      <div>
+        <h3 class="live-reviews-title">Recent <em>Reviews</em></h3>
+        <div class="live-review-list" id="live-review-list" aria-live="polite">
+          <div class="review-empty">Loading reviews...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- CTA BAND -->
+  <section id="cta-band">
+    <h2>Ready to Experience<br>Professional Beauty Care?</h2>
+    <p>Book your appointment today and enjoy premium services in Kudal, Sindhudurg.</p>
+    <div class="cta-actions">
+      <a href="#booking" class="btn-dark">Book Appointment</a>
+      <a href="tel:+919637720097" class="btn-cream">Call +91 96377 20097</a>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section id="location">
+    <div class="fade-up">
+      <div class="section-label">Find Us</div>
+      <h2 class="section-title">Visit <em>Our Salon</em></h2>
+    </div>
+    <div class="location-grid fade-up">
+      <div class="location-info">
+        <div>
+          <div class="info-label">Address</div>
+          <div class="info-value">B Beyond Hair &amp; Beauty Saloon<br>Kelbaiwadi, Kudal<br>Sindhudurg, Maharashtra 416520</div>
+        </div>
+        <div>
+          <div class="info-label">Phone</div>
+          <div class="info-value"><a href="tel:+919637720097">+91 96377 20097</a></div>
+        </div>
+        <div>
+          <div class="info-label">Opening Hours</div>
+          <div class="info-value">Daily from 9:30 AM</div>
+        </div>
+        <div>
+          <div class="info-label">Rating</div>
+          <div class="info-value">⭐ 4.5 Stars · 50+ Reviews</div>
+        </div>
+        <a href="#booking" class="btn-primary" style="align-self:flex-start;margin-top:0.4rem;">Book Now →</a>
+      </div>
+      <div class="map-wrap">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1203.24862797441!2d73.6845261209811!3d16.010546990966787!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc00ff9c9fa6d43%3A0x5cdc64de762b62a0!2sB%20beyond%20hair%20%26%20beauty%20saloon%20kudal%2Csindhudurg!5e1!3m2!1sen!2sin!4v1773511171448!5m2!1sen!2sin"
+          allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="B Beyond Salon location on Google Maps">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">B Beyond</div>
+        <div class="footer-logo-sub">Hair &amp; Beauty Saloon</div>
+        <p class="footer-tagline">A premium unisex beauty destination in Kudal, Sindhudurg — where everyone leaves feeling their best.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#booking">Book Now</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Haircuts</a></li>
+          <li><a href="#services">Hair Spa</a></li>
+          <li><a href="#services">Keratin</a></li>
+          <li><a href="#services">Beauty Treatments</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+919637720097">+91 96377 20097</a></li>
+          <li><a href="https://wa.me/919404274246" target="_blank" rel="noopener noreferrer">WhatsApp Us</a></li>
+          <li><a href="#location">Kelbaiwadi, Kudal</a></li>
+          <li><a href="#location">Open Daily · 9:30 AM</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 B Beyond Hair &amp; Beauty Saloon, Kudal. All rights reserved.</p>
+      <a href="#" class="footer-admin-btn" onclick="openAdminLogin(); return false;" aria-label="Open admin panel">
+        <span class="admin-btn-dot" aria-hidden="true"></span>
+        🔐 Admin Panel
+      </a>
+    </div>
+  </footer>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module" src="/src/pages/main.js"></script>
+
+</body>
+</html>

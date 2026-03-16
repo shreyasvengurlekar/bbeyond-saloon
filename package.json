@@ -1,0 +1,13 @@
+{
+  "name": "b-beyond-salon",
+  "version": "1.0.0",
+  "description": "B Beyond Hair & Beauty Saloon – Kudal, Sindhudurg",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

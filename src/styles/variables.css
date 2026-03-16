@@ -1,0 +1,13 @@
+/* ════════════════════════════════════════
+   ROOT VARIABLES
+════════════════════════════════════════ */
+:root {
+  --cream:   #fffcf2;
+  --sand:    #ccc5b9;
+  --brown:   #403d39;
+  --dark:    #252422;
+  --orange:  #eb5e28;
+  --divider: rgba(204, 197, 185, 0.14);
+  --serif:   'Cormorant Garamond', Georgia, serif;
+  --sans:    'Jost', sans-serif;
+}

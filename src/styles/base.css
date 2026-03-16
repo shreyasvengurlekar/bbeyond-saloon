@@ -1,0 +1,43 @@
+/* ════════════════════════════════════════
+   BASE RESET & GLOBAL
+════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--dark); color: var(--cream); overflow-x: hidden; }
+
+/* ════════════════════════════════════════
+   SHARED SECTION UTILITIES
+════════════════════════════════════════ */
+section { padding: 7rem 6vw; }
+
+.section-label {
+  font-size: 0.66rem; font-weight: 400; letter-spacing: 0.32em;
+  text-transform: uppercase; color: var(--orange);
+  display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1rem;
+}
+.section-label::before { content: ''; width: 26px; height: 1px; background: var(--orange); display: block; }
+
+.section-title {
+  font-family: var(--serif); font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 300; line-height: 1.2; margin-bottom: 1rem;
+}
+.section-title em { font-style: italic; color: var(--orange); }
+
+.section-sub { font-size: 0.94rem; font-weight: 300; line-height: 1.78; color: var(--sand); max-width: 520px; }
+
+/* ════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════ */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%,100% { box-shadow: 0 6px 24px rgba(37,211,102,0.4); } 50% { box-shadow: 0 6px 32px rgba(37,211,102,0.7); } }
+@keyframes adminGlow {
+  0%,100% { border-color: rgba(235,94,40,0.3); box-shadow: 0 0 0px rgba(235,94,40,0); }
+  50%      { border-color: rgba(235,94,40,0.9); box-shadow: 0 0 16px rgba(235,94,40,0.35); }
+}
+@keyframes dotPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.3; transform: scale(0.65); }
+}
+
+.fade-up { opacity: 0; transform: translateY(18px); transition: opacity 0.65s ease, transform 0.65s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
